@@ -1,0 +1,92 @@
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+
+<dom-module id="list-row">
+  <template>
+    <style is="custom-style" include="iron-flex iron-flex-alignment"></style>
+    
+    <style>
+      :host {
+        display: inline;
+      }
+      
+      .item-name {
+        border-right: 2px solid black;
+      }
+      
+      .item-price {
+        width: 60px;
+        min-width: 60px;
+        max-width: 60px;
+        font-weight: bold;
+        padding-right: 3px;
+        border-right: 2px solid black;
+      }
+      
+      .item-amount {
+        width: 40px;
+        min-width: 40px;
+        max-width: 40px;
+        text-align: center;
+        border-right: 2px solid black;
+      }
+      
+      .cell {
+        margin: 0 2px;
+      }
+      
+      paper-icon-button {
+        width: 40px;
+        min-width: 40px;
+        max-width: 40px;
+      }
+    </style>
+    
+    <div class="horizontal layout" style="align-items: stretch; border-bottom: 1px solid lightgrey;">
+      <div class="item-name flex horizontal layout center">
+        <div>[[item.name]]</div>
+      </div>
+      <div class="item-price cell horizontal layout center">
+        <div style="text-align: right;" class="flex">[[item.price]]</div>
+      </div>
+      <div class="item-amount cell horizontal layout center">
+        <div style="text-align: center;" class="flex">[[item.amount]]</div>
+      </div>
+      <paper-icon-button icon="remove"
+                         on-tap="_decreaseAmount" disabled="[[_decreaseDisabled]]"></paper-icon-button>
+      <paper-icon-button icon="add"
+                         on-tap="_increaseAmount"></paper-icon-button>
+    </div>
+  </template>
+  <script>
+    Polymer({
+      is: 'list-row',
+      
+      properties: {
+        item: {
+          type: Object,
+          notify: true
+        },
+        
+        _decreaseDisabled: {
+          type: Boolean,
+          computed: '__decreaseDisabled(item.amount)'
+        }
+      },
+      
+      __decreaseDisabled: function (amount) {
+        return amount <= 0;
+      },
+      
+      _decreaseAmount: function () {
+        this.set('item.amount', this.item.amount - 1);
+      },
+      
+      _increaseAmount: function () {
+        this.set('item.amount', this.item.amount + 1);
+      }
+    });
+  </script>
+</dom-module>

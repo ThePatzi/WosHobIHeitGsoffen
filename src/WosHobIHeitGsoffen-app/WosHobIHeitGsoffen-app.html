@@ -1,27 +1,178 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 
+<link rel="import" href="../../bower_components/app-layout/app-layout.html">
+
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/iron-swipeable-container/iron-swipeable-container.html">
+
+<link rel=" import" href="../list-row/list-row.html">
+
 <dom-module id="WosHobIHeitGsoffen-app">
   <template>
+    <style is="custom-style" include="iron-flex iron-flex-alignment"></style>
     <style>
       :host {
         display: block;
+        
+        --paper-card-content: {
+          padding: 10px;
+        };
       }
+      
+      .main-header {
+        background-color: #3d5afe;
+        color: #eee;
+      }
+      
+      app-header paper-icon-button {
+        --paper-icon-button-ink-color: white;
+      }
+      
+      .content {
+        margin: 5px;
+      }
+      
+      .content paper-card {
+        width: 500px;
+      }
+      
+      .price-input {
+        width: 60px;
+      }
+      
+      .actions {
+        margin-top: 5px;
+        border-top: 1px solid black;
+      }
+      
+      .actions * {
+        margin: 0 2px;
+      }
+      
+      .actions paper-icon-button {
+        width: 40px;
+        min-width: 40px;
+        max-width: 40px;
+      }
+      
+      @media (max-width: 500px) {
+        .content {
+          margin: 5px 0 0 0;
+        }
+        
+        .content paper-card {
+          width: 100%;
+        }
+      }
+    
     </style>
-    <h2>Hello [[prop1]]</h2>
+    
+    <app-drawer-layout force-narrow fullbleed>
+      <app-drawer id="drawer">
+        <app-toolbar></app-toolbar>
+      </app-drawer>
+      
+      <app-header-layout>
+        <app-header class="main-header">
+          <app-toolbar>
+            <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
+            <div spacer main-title>Wos hob i heite gsoffen</div>
+          </app-toolbar>
+        </app-header>
+        <div class="vertical layout center content">
+          <paper-card heading="Liste">
+            <div class="card-content vertical layout">
+              <div class="list-container">
+                <template is="dom-repeat" items="[[items]]" as="item">
+                  <iron-swipeable-container on-iron-swipe="_handleSwipe">
+                    <div>
+                      <list-row item="{{item}}"></list-row>
+                    </div>
+                  </iron-swipeable-container>
+                </template>
+              </div>
+              <div class="horizontal layout center actions">
+                <paper-input id="name" no-label-float
+                             placeholder="Name"
+                             class="flex"></paper-input>
+                
+                <paper-input id="price" no-label-float
+                             placeholder="Preis"
+                             class="price-input"
+                             type="number"
+                             min="0"></paper-input>
+                <paper-icon-button icon="arrow-downward"></paper-icon-button>
+                <paper-icon-button icon="add" on-tap="_addItem"></paper-icon-button>
+              </div>
+            </div>
+          </paper-card>
+  
+          <div>
+            <template is="dom-repeat" items="[[items]]" as="item">
+              {{item.name}}
+            </template>
+          </div>
+        </div>
+      </app-header-layout>
+    </app-drawer-layout>
+  
   </template>
-
+  
   <script>
     Polymer({
-
+      
       is: 'WosHobIHeitGsoffen-app',
-
+      
       properties: {
-        prop1: {
-          type: String,
-          value: 'WosHobIHeitGsoffen-app',
-        },
+        items: {
+          type: Array,
+          notify: true,
+          value: [
+            {
+              name: 'Spritzer',
+              price: 10.32,
+              amount: 1
+            },
+            
+            {
+              name: 'Long island spritzer cola meister',
+              price: 100.32,
+              amount: 1
+            }
+          ]
+        }
       },
-
+      
+      _addItem: function () {
+        var name = this.$.name.value;
+        var price = this.$.price.value;
+        
+        this.push('items', {
+          name: name,
+          price: price,
+          amount: 1
+        });
+        
+        console.log("test");
+      },
+      
+      _handleSwipe: function (e) {
+        this._removeItem(e.model.item);
+      },
+      
+      _removeItem: function (item) {
+        var index = this.items.indexOf(item);
+        this.splice('items', index, 1);
+      }
+      
     });
   </script>
 </dom-module>
+ 
