@@ -21,35 +21,39 @@
         min-width: 60px;
         max-width: 60px;
         font-weight: bold;
-        padding-right: 3px;
+        padding: 7px 3px 7px 0;
         border-right: 2px solid black;
       }
       
       .item-amount {
-        width: 40px;
-        min-width: 40px;
-        max-width: 40px;
+        width: 50px;
+        min-width: 50px;
+        max-width: 50px;
         text-align: center;
         border-right: 2px solid black;
       }
       
-      .cell {
-        margin: 0 2px;
-      }
-      
       paper-icon-button {
-        width: 40px;
-        min-width: 40px;
-        max-width: 40px;
+        width: 50px;
+        min-width: 50px;
+        max-width: 50px;
+        height: 50px;
+        min-height: 50px;
+        max-height: 50px;
+
+        --paper-icon-button:{
+          --iron-icon-width: 24px;
+          --iron-icon-height: 24px;
+        };
       }
     </style>
-    
-    <div class="horizontal layout" style="align-items: stretch; border-bottom: 1px solid lightgrey;">
+
+    <div class="horizontal layout" style="align-items: stretch;">
       <div class="item-name flex horizontal layout center">
         <div>[[item.name]]</div>
       </div>
       <div class="item-price cell horizontal layout center">
-        <div style="text-align: right;" class="flex">[[item.price]]</div>
+        <div style="text-align: right;" class="flex">[[_formatPrice(item.price)]]</div>
       </div>
       <div class="item-amount cell horizontal layout center">
         <div style="text-align: center;" class="flex">[[item.amount]]</div>
@@ -75,7 +79,13 @@
           computed: '__decreaseDisabled(item.amount)'
         }
       },
-      
+
+      _formatPrice: function (price) {
+        price = parseFloat(price) || 0;
+
+        return (price).toFixed(2);
+      },
+
       __decreaseDisabled: function (amount) {
         return amount <= 0;
       },
@@ -83,7 +93,7 @@
       _decreaseAmount: function () {
         this.set('item.amount', this.item.amount - 1);
       },
-      
+
       _increaseAmount: function () {
         this.set('item.amount', this.item.amount + 1);
       }

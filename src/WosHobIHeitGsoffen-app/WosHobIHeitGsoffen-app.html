@@ -1,11 +1,10 @@
-<link rel="import" href="../../bower_components/polymer/polymer.html">
-
 <link rel="import" href="../../bower_components/app-layout/app-layout.html">
 
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../../bower_components/paper-fab/paper-fab.html">
 <link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 
 <link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
@@ -48,7 +47,6 @@
       }
       
       .actions {
-        margin-top: 5px;
         border-top: 1px solid black;
       }
       
@@ -61,7 +59,11 @@
         min-width: 40px;
         max-width: 40px;
       }
-      
+
+      .row {
+        border-bottom: 1px solid lightgray;
+      }
+
       @media (max-width: 500px) {
         .content {
           margin: 5px 0 0 0;
@@ -90,9 +92,15 @@
           <paper-card heading="Liste">
             <div class="card-content vertical layout">
               <div class="list-container">
-                <template is="dom-repeat" items="[[items]]" as="item">
-                  <iron-swipeable-container on-iron-swipe="_handleSwipe">
-                    <div>
+                <div class="horizontal layout">
+                  <span class="flex"></span>
+                  <span style="width: 60px; margin-right: 2px; text-align: center;">€</span>
+                  <span style="width: 50px; margin-right: 2px; text-align: center;">#</span>
+                  <span style="width: 100px"></span>
+                </div>
+                <template is="dom-repeat" items="{{items}}" as="item">
+                  <iron-swipeable-container on-iron-swipe="_handleSwipe" style="cursor: pointer">
+                    <div class="row">
                       <list-row item="{{item}}"></list-row>
                     </div>
                   </iron-swipeable-container>
@@ -111,18 +119,17 @@
                 <paper-icon-button icon="arrow-downward"></paper-icon-button>
                 <paper-icon-button icon="add" on-tap="_addItem"></paper-icon-button>
               </div>
+              <div style="margin-top: 10px; font-weight: bold;">
+                Gesamt: [[_sum]]
+              </div>
             </div>
           </paper-card>
-  
-          <div>
-            <template is="dom-repeat" items="[[items]]" as="item">
-              {{item.name}}
-            </template>
-          </div>
         </div>
       </app-header-layout>
     </app-drawer-layout>
-  
+
+    <paper-toast id="toast"></paper-toast>
+
   </template>
   
   <script>
@@ -147,29 +154,50 @@
               amount: 1
             }
           ]
+        },
+
+        _sum: {
+          type: Number,
+          computed: '__calculateSum(items.*)'
         }
       },
-      
+
+      __calculateSum: function () {
+        var sum = 0;
+
+        for (var i = 0; i < this.items.length; i++) {
+          var item = this.items[i];
+
+          sum += item.amount * item.price;
+        }
+
+        return sum.toFixed(2);
+      },
+
       _addItem: function () {
         var name = this.$.name.value;
-        var price = this.$.price.value;
+        var price = parseFloat(this.$.price.value);
         
         this.push('items', {
           name: name,
           price: price,
           amount: 1
         });
-        
-        console.log("test");
       },
       
       _handleSwipe: function (e) {
         this._removeItem(e.model.item);
+        this._showToast(e.model.item.name + ' removed')
       },
       
       _removeItem: function (item) {
         var index = this.items.indexOf(item);
         this.splice('items', index, 1);
+      },
+
+      _showToast: function (text) {
+        this.$.toast.text = text;
+        this.$.toast.open();
       }
       
     });
