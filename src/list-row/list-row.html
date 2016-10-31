@@ -9,7 +9,7 @@
     
     <style>
       :host {
-        display: inline;
+        display: block;
       }
       
       .item-name {
@@ -40,15 +40,14 @@
         height: 50px;
         min-height: 50px;
         max-height: 50px;
-
-        --paper-icon-button:{
-          --iron-icon-width: 24px;
-          --iron-icon-height: 24px;
-        };
+      }
+      
+      .container {
+        @apply(--row-style);
       }
     </style>
-
-    <div class="horizontal layout" style="align-items: stretch;">
+    
+    <div class="horizontal layout container" style="align-items: stretch;">
       <div class="item-name flex horizontal layout center">
         <div>[[item.name]]</div>
       </div>
@@ -79,13 +78,13 @@
           computed: '__decreaseDisabled(item.amount)'
         }
       },
-
+      
       _formatPrice: function (price) {
         price = parseFloat(price) || 0;
-
+        
         return (price).toFixed(2);
       },
-
+      
       __decreaseDisabled: function (amount) {
         return amount <= 0;
       },
@@ -93,7 +92,7 @@
       _decreaseAmount: function () {
         this.set('item.amount', this.item.amount - 1);
       },
-
+      
       _increaseAmount: function () {
         this.set('item.amount', this.item.amount + 1);
       }

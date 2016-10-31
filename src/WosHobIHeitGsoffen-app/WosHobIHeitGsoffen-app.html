@@ -1,4 +1,5 @@
 <link rel="import" href="../../bower_components/app-layout/app-layout.html">
+<link rel="import" href="../../bower_components/app-pouchdb/app-pouchdb-document.html">
 
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../bower_components/paper-card/paper-card.html">
@@ -10,8 +11,9 @@
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../bower_components/iron-swipeable-container/iron-swipeable-container.html">
+<link rel="import" href="../../bower_components/iron-scroll-target-behavior/iron-scroll-target-behavior.html">
 
-<link rel=" import" href="../list-row/list-row.html">
+<link rel="import" href="../list-row/list-row.html">
 
 <dom-module id="WosHobIHeitGsoffen-app">
   <template>
@@ -59,11 +61,19 @@
         min-width: 40px;
         max-width: 40px;
       }
-
+      
       .row {
-        border-bottom: 1px solid lightgray;
+        --row-style: {
+          border-bottom: 1px solid lightgray;
+        };
       }
-
+      
+      .list {
+        max-height: 300px;
+        overflow-y: auto;
+        /*overflow-x: inherit;*/
+      }
+      
       @media (max-width: 500px) {
         .content {
           margin: 5px 0 0 0;
@@ -98,15 +108,17 @@
                   <span style="width: 50px; margin-right: 2px; text-align: center;">#</span>
                   <span style="width: 100px"></span>
                 </div>
-                <template is="dom-repeat" items="{{items}}" as="item">
-                  <iron-swipeable-container on-iron-swipe="_handleSwipe" style="cursor: pointer">
-                    <div class="row">
-                      <list-row item="{{item}}"></list-row>
-                    </div>
-                  </iron-swipeable-container>
-                </template>
+                <div id="scroll-container" class="">
+                  <div scroll-target="scroll-container" class="list">
+                    <template is="dom-repeat" items="{{value.items}}" as="item">
+                      <iron-swipeable-container on-iron-swipe="_handleSwipe" style="cursor: pointer">
+                        <list-row class="row" item="{{item}}"></list-row>
+                      </iron-swipeable-container>
+                    </template>
+                  </div>
+                </div>
               </div>
-              <div class="horizontal layout center actions">
+              <div class="horizontal layout center actions" style="z-index: 9999">
                 <paper-input id="name" no-label-float
                              placeholder="Name"
                              class="flex"></paper-input>
@@ -116,7 +128,7 @@
                              class="price-input"
                              type="number"
                              min="0"></paper-input>
-                <paper-icon-button icon="arrow-downward"></paper-icon-button>
+                <paper-icon-button icon="favorite-border"></paper-icon-button>
                 <paper-icon-button icon="add" on-tap="_addItem"></paper-icon-button>
               </div>
               <div style="margin-top: 10px; font-weight: bold;">
@@ -127,9 +139,15 @@
         </div>
       </app-header-layout>
     </app-drawer-layout>
-
+    
     <paper-toast id="toast"></paper-toast>
-
+    
+    <app-pouchdb-document
+        db-name="woshobigsoffn"
+        doc-id="list"
+        data="{{value}}">
+    </app-pouchdb-document>
+  
   </template>
   
   <script>
@@ -138,47 +156,35 @@
       is: 'WosHobIHeitGsoffen-app',
       
       properties: {
-        items: {
-          type: Array,
+        value: {
+          type: Object,
           notify: true,
-          value: [
-            {
-              name: 'Spritzer',
-              price: 10.32,
-              amount: 1
-            },
-            
-            {
-              name: 'Long island spritzer cola meister',
-              price: 100.32,
-              amount: 1
-            }
-          ]
+          value: {items: []}
         },
-
+        
         _sum: {
           type: Number,
-          computed: '__calculateSum(items.*)'
+          computed: '__calculateSum(value.items.*)'
         }
       },
-
+      
       __calculateSum: function () {
         var sum = 0;
-
-        for (var i = 0; i < this.items.length; i++) {
-          var item = this.items[i];
-
+        
+        for (var i = 0; i < this.value.items.length; i++) {
+          var item = this.value.items[i];
+          
           sum += item.amount * item.price;
         }
-
+        
         return sum.toFixed(2);
       },
-
+      
       _addItem: function () {
         var name = this.$.name.value;
         var price = parseFloat(this.$.price.value);
         
-        this.push('items', {
+        this.push('value.items', {
           name: name,
           price: price,
           amount: 1
@@ -191,10 +197,10 @@
       },
       
       _removeItem: function (item) {
-        var index = this.items.indexOf(item);
-        this.splice('items', index, 1);
+        var index = this.value.items.indexOf(item);
+        this.splice('value.items', index, 1);
       },
-
+      
       _showToast: function (text) {
         this.$.toast.text = text;
         this.$.toast.open();
