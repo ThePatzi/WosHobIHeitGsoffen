@@ -1,0 +1,59 @@
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+
+<dom-module id="list-input">
+  <template>
+    <style is="custom-style" include="iron-flex iron-flex-alignment"></style>
+    <style>
+      :host {
+        display: block;
+      }
+
+      .price-input {
+        width: 60px;
+      }
+
+      .actions {
+        border-top: 1px solid black;
+      }
+
+      .actions * {
+        margin: 0 2px;
+      }
+
+      .actions paper-icon-button {
+        width: 40px;
+        min-width: 40px;
+        max-width: 40px;
+      }
+    </style>
+    
+    <div class="horizontal layout center actions">
+      <paper-input id="name" no-label-float
+                   placeholder="Name"
+                   class="flex"></paper-input>
+      
+      <paper-input id="price" no-label-float
+                   placeholder="Preis"
+                   class="price-input"
+                   type="number"
+                   min="0"></paper-input>
+      <paper-icon-button icon="favorite-border"></paper-icon-button>
+      <paper-icon-button icon="add" on-tap="_addItem"></paper-icon-button>
+    </div>
+  </template>
+  <script>
+    Polymer({
+      is: 'list-input',
+      
+      properties: {},
+      
+      _addItem: function () {
+        var name = this.$.name.value;
+        var price = parseFloat(this.$.price.value);
+        
+        this.fire('add-item', {name: name, price: price, amount: 1});
+      },
+    });
+  </script>
+</dom-module>

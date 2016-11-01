@@ -45,10 +45,14 @@
       .container {
         @apply(--row-style);
       }
+      
+      .cell {
+        pointer-events: none;
+      }
     </style>
     
     <div class="horizontal layout container" style="align-items: stretch;">
-      <div class="item-name flex horizontal layout center">
+      <div class="item-name cell flex horizontal layout center">
         <div>[[item.name]]</div>
       </div>
       <div class="item-price cell horizontal layout center">

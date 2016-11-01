@@ -1,0 +1,130 @@
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../bower_components/iron-swipeable-container/iron-swipeable-container.html">
+<link rel="import" href="../../bower_components/iron-scroll-target-behavior/iron-scroll-target-behavior.html">
+
+<link rel="import" href="../list-row/list-row.html">
+<link rel="import" href="./list-input.html">
+
+<dom-module id="whihg-list">
+  <template>
+    <style is="custom-style" include="iron-flex iron-flex-alignment"></style>
+    <style>
+      :host {
+        display: block;
+      }
+      
+      .sign {
+        margin-right: 2px;
+        text-align: center;
+      }
+      
+      .euro.sign {
+        width: 60px;
+      }
+      
+      .amount.sign {
+        width: 50px;
+      }
+      
+      .sign-spacer {
+        width: 100px;
+      }
+      
+      .row {
+        --row-style: {
+          border-bottom: 1px solid lightgray;
+        };
+      }
+      
+      @media (min-width: 500px) {
+        .list {
+          max-height: 300px;
+          overflow-y: auto;
+          overflow-x: hidden;
+        }
+      }
+    </style>
+    
+    <div class="vertical layout">
+      <div class="list-container">
+        <div class="horizontal layout">
+          <span class="flex"></span>
+          <span class="euro sign">&euro;</span>
+          <span class="amount sign">#</span>
+          <span class="sign-spacer"></span>
+        </div>
+        <div id="scroll-container" class="">
+          <div scroll-target="scroll-container" class="list">
+            <template is="dom-repeat" items="{{items}}" as="item">
+              <list-row class="row" item="{{item}}"></list-row>
+            </template>
+          </div>
+        </div>
+      </div>
+      <list-input on-add-item="__handleAddItem"></list-input>
+      <div style="margin-top: 10px; font-weight: bold;">
+        Gesamt: [[_sum]]
+      </div>
+    </div>
+  </template>
+  <script>
+    Polymer({
+      is: 'whihg-list',
+      
+      properties: {
+        items: {
+          type: Array,
+          notify: true,
+          value: []
+        },
+        
+        _sum: {
+          type: Number,
+          computed: '__calculateSum(items.*)'
+        },
+      },
+      
+      __calculateSum: function () {
+        var sum = 0;
+        
+        for (var i = 0; i < this.items.length; i++) {
+          var item = this.items[i];
+          var amount = item.amount || 0;
+          var price = item.price || 0;
+          
+          sum += amount * price;
+        }
+        
+        return sum.toFixed(2);
+      },
+      
+      _handleSwipe: function (e) {
+        this._removeItem(e.model.item);
+        this._fireShowToast(e.model.item.name + ' removed')
+      },
+      
+      __handleAddItem: function (e) {
+        var item = e.detail;
+        
+        this.push('items', {
+          name: item.name,
+          price: item.price,
+          amount: item.amount
+        });
+      },
+      
+      _removeItem: function (item) {
+        var index = this.items.indexOf(item);
+        this.splice('items', index, 1);
+      },
+      
+      _fireShowToast: function (message) {
+        this.fire('show-toast', {message: message});
+      }
+    });
+  </script>
+</dom-module>

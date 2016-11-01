@@ -1,19 +1,15 @@
 <link rel="import" href="../../bower_components/app-layout/app-layout.html">
 <link rel="import" href="../../bower_components/app-pouchdb/app-pouchdb-document.html">
 
-<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../bower_components/paper-card/paper-card.html">
-<link rel="import" href="../../bower_components/paper-fab/paper-fab.html">
-<link rel="import" href="../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 
 <link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
-<link rel="import" href="../../bower_components/iron-swipeable-container/iron-swipeable-container.html">
-<link rel="import" href="../../bower_components/iron-scroll-target-behavior/iron-scroll-target-behavior.html">
 
-<link rel="import" href="../list-row/list-row.html">
+<link rel="import" href="../whihg-list/whihg-list.html">
+<link rel="import" href="./test.html">
 
 <dom-module id="WosHobIHeitGsoffen-app">
   <template>
@@ -44,43 +40,16 @@
         width: 500px;
       }
       
-      .price-input {
-        width: 60px;
-      }
-      
-      .actions {
-        border-top: 1px solid black;
-      }
-      
-      .actions * {
-        margin: 0 2px;
-      }
-      
-      .actions paper-icon-button {
-        width: 40px;
-        min-width: 40px;
-        max-width: 40px;
-      }
-      
-      .row {
-        --row-style: {
-          border-bottom: 1px solid lightgray;
-        };
-      }
-      
-      .list {
-        max-height: 300px;
-        overflow-y: auto;
-        /*overflow-x: inherit;*/
-      }
-      
       @media (max-width: 500px) {
         .content {
           margin: 5px 0 0 0;
+          height: 100%;
         }
         
         .content paper-card {
           width: 100%;
+          height: 100%;
+          max-height: 100%;
         }
       }
     
@@ -91,7 +60,7 @@
         <app-toolbar></app-toolbar>
       </app-drawer>
       
-      <app-header-layout>
+      <app-header-layout fullbleed>
         <app-header class="main-header">
           <app-toolbar>
             <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
@@ -99,41 +68,10 @@
           </app-toolbar>
         </app-header>
         <div class="vertical layout center content">
-          <paper-card heading="Liste">
-            <div class="card-content vertical layout">
-              <div class="list-container">
-                <div class="horizontal layout">
-                  <span class="flex"></span>
-                  <span style="width: 60px; margin-right: 2px; text-align: center;">€</span>
-                  <span style="width: 50px; margin-right: 2px; text-align: center;">#</span>
-                  <span style="width: 100px"></span>
-                </div>
-                <div id="scroll-container" class="">
-                  <div scroll-target="scroll-container" class="list">
-                    <template is="dom-repeat" items="{{value.items}}" as="item">
-                      <iron-swipeable-container on-iron-swipe="_handleSwipe" style="cursor: pointer">
-                        <list-row class="row" item="{{item}}"></list-row>
-                      </iron-swipeable-container>
-                    </template>
-                  </div>
-                </div>
-              </div>
-              <div class="horizontal layout center actions" style="z-index: 9999">
-                <paper-input id="name" no-label-float
-                             placeholder="Name"
-                             class="flex"></paper-input>
-                
-                <paper-input id="price" no-label-float
-                             placeholder="Preis"
-                             class="price-input"
-                             type="number"
-                             min="0"></paper-input>
-                <paper-icon-button icon="favorite-border"></paper-icon-button>
-                <paper-icon-button icon="add" on-tap="_addItem"></paper-icon-button>
-              </div>
-              <div style="margin-top: 10px; font-weight: bold;">
-                Gesamt: [[_sum]]
-              </div>
+          <paper-card heading="Liste" on-vaadin-long-touch="_test">
+            <div class="card-content">
+              <whihg-list items="{{value.items}}"
+                          on-show-toast="__handleShowToast"></whihg-list>
             </div>
           </paper-card>
         </div>
@@ -146,6 +84,12 @@
         db-name="woshobigsoffn"
         doc-id="list"
         data="{{value}}">
+    </app-pouchdb-document>
+    
+    <app-pouchdb-document
+        db-name="woshobigsoffn"
+        doc-id="__favorites__"
+        data="{{favorites}}">
     </app-pouchdb-document>
   
   </template>
@@ -162,43 +106,20 @@
           value: {items: []}
         },
         
-        _sum: {
-          type: Number,
-          computed: '__calculateSum(value.items.*)'
-        }
-      },
-      
-      __calculateSum: function () {
-        var sum = 0;
-        
-        for (var i = 0; i < this.value.items.length; i++) {
-          var item = this.value.items[i];
-          
-          sum += item.amount * item.price;
+        favorites: {
+          type: Object,
+          notify: true,
+          value: {items: []}
         }
         
-        return sum.toFixed(2);
+      },
+  
+      _test:function (e) {
+        console.log(e);
       },
       
-      _addItem: function () {
-        var name = this.$.name.value;
-        var price = parseFloat(this.$.price.value);
-        
-        this.push('value.items', {
-          name: name,
-          price: price,
-          amount: 1
-        });
-      },
-      
-      _handleSwipe: function (e) {
-        this._removeItem(e.model.item);
-        this._showToast(e.model.item.name + ' removed')
-      },
-      
-      _removeItem: function (item) {
-        var index = this.value.items.indexOf(item);
-        this.splice('value.items', index, 1);
+      __handleShowToast: function (e) {
+        this._showToast(e.detail.message);
       },
       
       _showToast: function (text) {
