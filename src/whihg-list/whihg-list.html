@@ -11,7 +11,7 @@
 
 <dom-module id="whihg-list">
   <template>
-    <style is="custom-style" include="iron-flex iron-flex-alignment"></style>
+    <style is="custom-style" include="iron-flex iron-flex-alignment iron-positioning"></style>
     <style>
       :host {
         display: block;
@@ -40,30 +40,22 @@
         };
       }
       
-      @media (min-width: 500px) {
-        .list {
-          max-height: 300px;
-          overflow-y: auto;
-          overflow-x: hidden;
-        }
+      .header {
+        border-bottom: 1px solid black;
       }
     </style>
     
-    <div class="vertical layout">
-      <div class="list-container">
-        <div class="horizontal layout">
-          <span class="flex"></span>
-          <span class="euro sign">&euro;</span>
-          <span class="amount sign">#</span>
-          <span class="sign-spacer"></span>
-        </div>
-        <div id="scroll-container" class="">
-          <div scroll-target="scroll-container" class="list">
-            <template is="dom-repeat" items="{{items}}" as="item">
-              <list-row class="row" item="{{item}}"></list-row>
-            </template>
-          </div>
-        </div>
+    <div class="vertical layout fit">
+      <div class="horizontal layout header">
+        <span class="flex"></span>
+        <span class="euro sign">&euro;</span>
+        <span class="amount sign">#</span>
+        <span class="sign-spacer"></span>
+      </div>
+      <div class="flex" style="overflow: auto">
+        <template is="dom-repeat" items="{{items}}" as="item">
+          <list-row class="row" item="{{item}}"></list-row>
+        </template>
       </div>
       <list-input on-add-item="__handleAddItem"></list-input>
       <div style="margin-top: 10px; font-weight: bold;">

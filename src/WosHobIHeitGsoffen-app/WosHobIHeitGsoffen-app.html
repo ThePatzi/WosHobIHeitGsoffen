@@ -17,10 +17,6 @@
     <style>
       :host {
         display: block;
-        
-        --paper-card-content: {
-          padding: 10px;
-        };
       }
       
       .main-header {
@@ -33,23 +29,42 @@
       }
       
       .content {
-        margin: 5px;
+        position: relative;
       }
       
-      .content paper-card {
-        width: 500px;
+      .card {
+        padding: 5px;
+        margin-top: 6px;
+        
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+      }
+      
+      .card > .header {
+        font-size: 25px;
+        font-weight: bold;
+        padding: 5px;
+      }
+      
+      @media (min-width: 500px) {
+        .card {
+          width: 500px;
+          height: 500px;
+        }
       }
       
       @media (max-width: 500px) {
-        .content {
-          margin: 5px 0 0 0;
-          height: 100%;
-        }
-        
-        .content paper-card {
+        .content-container {
           width: 100%;
           height: 100%;
-          max-height: 100%;
+          position: relative;
+        }
+        
+        .card {
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          left: 0;
+          right: 0;
         }
       }
     
@@ -67,13 +82,16 @@
             <div spacer main-title>Wos hob i heite gsoffen</div>
           </app-toolbar>
         </app-header>
-        <div class="vertical layout center content">
-          <paper-card heading="Liste" on-vaadin-long-touch="_test">
-            <div class="card-content">
+        <div class="vertical layout center content-container">
+          <div class="vertical layout card">
+            <div class="header">
+              Liste
+            </div>
+            <div class="content flex">
               <whihg-list items="{{value.items}}"
                           on-show-toast="__handleShowToast"></whihg-list>
             </div>
-          </paper-card>
+          </div>
         </div>
       </app-header-layout>
     </app-drawer-layout>
@@ -113,8 +131,8 @@
         }
         
       },
-  
-      _test:function (e) {
+      
+      _test: function (e) {
         console.log(e);
       },
       
