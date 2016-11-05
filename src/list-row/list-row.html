@@ -2,6 +2,7 @@
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../swipe-overlay/swipe-overlay.html">
 
 <dom-module id="list-row">
   <template>
@@ -10,6 +11,9 @@
     <style>
       :host {
         display: block;
+        --container-style: {
+          @apply(--layout-center);
+        }
       }
       
       .item-name {
@@ -51,21 +55,27 @@
       }
     </style>
     
-    <div class="horizontal layout container" style="align-items: stretch;">
-      <div class="item-name cell flex horizontal layout center">
-        <div>[[item.name]]</div>
+    <swipe-overlay responsiveWidth="1000px" auto-hide-time="3000">
+      <div secondary-content class="horizontal layout center">
+        <paper-icon-button icon="clear"
+                           on-tap="_removeItem"></paper-icon-button>
       </div>
-      <div class="item-price cell horizontal layout center">
-        <div style="text-align: right;" class="flex">[[_formatPrice(item.price)]]</div>
+      <div class="horizontal layout container" style="align-items: stretch;" main-content>
+        <div class="item-name cell flex horizontal layout center">
+          <div>[[item.name]]</div>
+        </div>
+        <div class="item-price cell horizontal layout center">
+          <div style="text-align: right;" class="flex">[[_formatPrice(item.price)]]</div>
+        </div>
+        <div class="item-amount cell horizontal layout center">
+          <div style="text-align: center;" class="flex">[[item.amount]]</div>
+        </div>
+        <paper-icon-button icon="remove"
+                           on-tap="_decreaseAmount" disabled="[[_decreaseDisabled]]"></paper-icon-button>
+        <paper-icon-button icon="add"
+                           on-tap="_increaseAmount"></paper-icon-button>
       </div>
-      <div class="item-amount cell horizontal layout center">
-        <div style="text-align: center;" class="flex">[[item.amount]]</div>
-      </div>
-      <paper-icon-button icon="remove"
-                         on-tap="_decreaseAmount" disabled="[[_decreaseDisabled]]"></paper-icon-button>
-      <paper-icon-button icon="add"
-                         on-tap="_increaseAmount"></paper-icon-button>
-    </div>
+    </swipe-overlay>
   </template>
   <script>
     Polymer({
@@ -99,6 +109,11 @@
       
       _increaseAmount: function () {
         this.set('item.amount', this.item.amount + 1);
+      },
+      
+      _removeItem: function () {
+        var item = this.item;
+        this.fire('remove-item', {item: item});
       }
     });
   </script>

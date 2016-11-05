@@ -1,0 +1,200 @@
+<link rel="import" href="../../bower_components/iron-media-query/iron-media-query.html"/>
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html"/>
+
+<link rel="import" href="../../bower_components/neon-animation/neon-animation-runner-behavior.html"/>
+
+<link rel="import" href="./gestures.html"/>
+
+<link rel="import" href="./swipe-in-animation.html"/>
+<link rel="import" href="./swipe-out-animation.html"/>
+
+<dom-module id="swipe-overlay">
+  <template>
+    <style is="custom-style" include="iron-flex iron-flex-alignment"></style>
+    
+    <style>
+      :host {
+        display: block;
+        overflow: hidden;
+      }
+      
+      #container {
+        position: relative;
+      }
+      
+      :host([narrow]) * #second {
+        position: absolute;
+        transform: translateX(-100%);
+      }
+      
+      #main {
+        @apply(--container-style);
+      }
+      
+      .container {
+        @apply(--container-style);
+      }
+    </style>
+    
+    <div id="container">
+      <div class="container horizontal layout">
+        <div id="second" class="second-content outside">
+          <content select="[secondary-content]"></content>
+        </div>
+        <div id="main" class="main flex">
+          <content select="[main-content]"></content>
+        </div>
+      </div>
+    </div>
+    <iron-media-query
+        query="[[_computeMediaQuery(forceNarrow, responsiveWidth)]]"
+        on-query-matches-changed="_onQueryMatchesChanged"></iron-media-query>
+  </template>
+  <script>
+    Polymer({
+      is: 'swipe-overlay',
+      
+      behaviors: [
+        Polymer.NeonAnimationRunnerBehavior
+      ],
+      
+      properties: {
+        forceNarrow: {
+          type: Boolean,
+          value: false
+        },
+        
+        responsiveWidth: {
+          type: String,
+          value: "640px"
+        },
+        
+        narrow: {
+          type: Boolean,
+          readOnly: true,
+          notify: true,
+          reflectToAttribute: true
+        },
+        
+        animated: {
+          type: Boolean,
+          notify: true,
+          reflectToAttribute: true,
+          value: true
+        },
+        
+        showSecond: {
+          type: Boolean,
+          notify: true,
+          reflectToAttribute: true,
+          value: false
+        },
+        
+        autoHideTime: {
+          type: Number,
+          value: -1
+        },
+        
+        __debouncerJobName: {
+          type: String,
+          value: '__swipe_overlay_debouncer'
+        },
+        
+        animationConfig: {
+          type: Object,
+          value: function () {
+            return {
+              'show': [{
+                name: 'swipe-in-animation',
+                node: this.$.container,
+                swipeElement: this.$.second
+              }],
+              'hide': [{
+                name: 'swipe-out-animation',
+                node: this.$.container,
+                swipeElement: this.$.second
+              }]
+            };
+          }
+        }
+      },
+      
+      listeners: {
+        'neon-animation-finish': '_onAnimationFinish'
+      },
+      
+      observers: [
+        '__narrowChanged(narrow)'
+      ],
+      
+      attached: function () {
+        this._applyHideStyle();
+      },
+      
+      showSecondContent: function () {
+        var createDebouncerTask = !this.showSecond;
+        
+        this.showSecond = true;
+        
+        if (createDebouncerTask && this.narrow) {
+          this.playAnimation('show');
+          
+          if (this._shouldAutoHide()) {
+            var self = this;
+            this.debounce(this.__debouncerJobName, function () {
+              self.hideSecondContent();
+            }, this.autoHideTime);
+          }
+        }
+      },
+      
+      hideSecondContent: function () {
+        if (this.showSecond && this.narrow) {
+          this.playAnimation('hide');
+        }
+        
+        this.showSecond = false;
+        this.cancelDebouncer(this.__debouncerJobName);
+      },
+      
+      __narrowChanged: function (narrow) {
+        this.toggleClass('narrow', narrow, this.$.container);
+        
+        this._applyHideStyle();
+        
+        if (narrow) {
+          this.listen(this, 'swipe-right', 'showSecondContent');
+          this.listen(this, 'swipe-left', 'hideSecondContent');
+        } else {
+          this.unlisten(this, 'swipe-right', 'showSecondContent');
+          this.unlisten(this, 'swipe-left', 'hideSecondContent');
+        }
+      },
+      
+      _onQueryMatchesChanged: function (event) {
+        this._setNarrow(event.detail.value);
+      },
+      
+      _computeMediaQuery: function (forceNarrow, responsiveWidth) {
+        return forceNarrow ? '(min-width: 0px)' : '(max-width: ' + responsiveWidth + ')';
+      },
+      
+      _shouldAutoHide: function () {
+        return this.autoHideTime > 0;
+      },
+      
+      _onAnimationFinish: function () {
+        this._applyHideStyle();
+      },
+      
+      _applyHideStyle: function () {
+        if (this.narrow && this.showSecond) {
+          var rect = this.$.second.getBoundingClientRect();
+          this.$.container.style.transform = "translateX(" + rect.width + "px)";
+        } else {
+          this.$.container.style.transform = "";
+        }
+      }
+    });
+  </script>
+</dom-module>

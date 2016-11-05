@@ -1,0 +1,222 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<script>
+  (function () {
+    var TRACK_LENGTH = 2;
+    var SWIPE_DISTANCE = 80;
+    
+    function trackDocument(stateObj, movefn, upfn) {
+      stateObj.movefn = movefn;
+      stateObj.upfn = upfn;
+      document.addEventListener('mousemove', movefn);
+      document.addEventListener('mouseup', upfn);
+    }
+    
+    function untrackDocument(stateObj) {
+      document.removeEventListener('mousemove', stateObj.movefn);
+      document.removeEventListener('mouseup', stateObj.upfn);
+      stateObj.movefn = null;
+      stateObj.upfn = null;
+    }
+    
+    Polymer.Gestures.register({
+      name: 'swipe-left',
+      
+      deps: [
+        'mousedown',
+        'touchstart',
+        'touchmove',
+        'touchend'
+      ],
+      
+      flow: {
+        start: [
+          'mousedown',
+          'touchstart'
+        ],
+        end: [
+          'mouseup',
+          'touchend'
+        ]
+      },
+      
+      emits: ['swipe-left', 'swipe-right', 'swipe-up', 'swipe-down'],
+      
+      info: {
+        x: 0,
+        y: 0,
+        started: false,
+        fired: false,
+        moves: [],
+        addMove: function (move) {
+          if (this.moves.length > TRACK_LENGTH) {
+            this.moves.shift();
+          }
+          this.moves.push(move);
+        },
+        movefn: null,
+        upfn: null,
+        prevent: false
+      },
+      
+      reset: function () {
+        this.info.fired = false;
+        this.info.started = false;
+        this.info.moves = [];
+        this.info.x = 0;
+        this.info.y = 0;
+        this.info.prevent = false;
+        untrackDocument(this.info);
+      },
+      
+      hasMovedEnough: function (x, y) {
+        if (this.info.prevent) {
+          return false;
+        }
+        if (this.info.started) {
+          return true;
+        }
+        var dx = Math.abs(this.info.x - x);
+        var dy = Math.abs(this.info.y - y);
+        return dx >= SWIPE_DISTANCE || dy >= SWIPE_DISTANCE;
+      },
+      
+      getEventDirectionToFire: function (x, y) {
+        var dx = this.info.x - x;
+        var dy = this.info.y - y;
+        
+        if (Math.abs(dx) < Math.abs(dy)) {
+          if (dy < 0) {
+            return 'down';
+          } else {
+            return 'up';
+          }
+        } else {
+          if (dx < 0) {
+            return 'right';
+          } else {
+            return 'left';
+          }
+        }
+        
+      },
+      
+      mousedown: function (e) {
+        var target = Polymer.Gestures.findOriginalTarget(e);
+        var self = this;
+        
+        var movefn = function movefn(e) {
+          var x = e.clientX;
+          var y = e.clientY;
+          
+          if (self.hasMovedEnough(x, y)) {
+            self.info.addMove({
+              x: x,
+              y: y
+            });
+            
+            var direction = self.getEventDirectionToFire(x, y);
+            
+            self.fire(target, e, direction);
+            
+            self.info.started = true;
+          }
+        };
+        
+        var upfn = function upfn(e) {
+          if (self.info.started) {
+            movefn(e);
+          }
+          untrackDocument(self.info);
+        };
+        
+        trackDocument(this.info, movefn, upfn);
+        this.info.x = e.clientX;
+        this.info.y = e.clientY;
+      },
+      
+      touchstart: function (e) {
+        var ct = e.changedTouches[0];
+        this.info.x = ct.clientX;
+        this.info.y = ct.clientY;
+      },
+      
+      touchmove: function (e) {
+        var target = Polymer.Gestures.findOriginalTarget(e);
+        var ct = e.changedTouches[0];
+        
+        var x = ct.clientX;
+        var y = ct.clientY;
+        
+        if (this.hasMovedEnough(x, y)) {
+          if (!this.info.started) {
+            Polymer.Gestures.prevent('tap');
+          }
+          
+          this.info.addMove({
+            x: x,
+            y: y
+          });
+          
+          this.fire(target, ct, this.getEventDirectionToFire(x, y));
+          this.info.started = true;
+        }
+      },
+      
+      touchend: function (e) {
+        if (this.info.fired) {
+          return;
+        }
+        
+        var target = Polymer.Gestures.findOriginalTarget(e);
+        var ct = e.changedTouches[0];
+        
+        if (this.info.started) {
+          var x = ct.clientX;
+          var y = ct.clientY;
+          
+          this.info.started = false;
+          this.info.addMove({
+            x: x,
+            y: y
+          });
+          
+          this.fire(target, ct, this.getEventDirectionToFire(x, y), e);
+        }
+      },
+      
+      fire: function (target, touch, direction, preventer) {
+        if (this.info.fired) {
+          return;
+        }
+        
+        this.info.fired = true;
+        
+        var secondlast = this.info.moves[this.info.moves.length - 2];
+        var lastmove = this.info.moves[this.info.moves.length - 1];
+        var dx = lastmove.x - this.info.x;
+        var dy = lastmove.y - this.info.y;
+        var ddx, ddy = 0;
+        if (secondlast) {
+          ddx = lastmove.x - secondlast.x;
+          ddy = lastmove.y - secondlast.y;
+        }
+        return Polymer.Gestures.fire(target, 'swipe-' + direction, {
+          direction: direction,
+          state: this.info.state,
+          x: touch.clientX,
+          y: touch.clientY,
+          dx: dx,
+          dy: dy,
+          ddx: ddx,
+          ddy: ddy,
+          sourceEvent: touch,
+          preventer: preventer,
+          hover: function () {
+            return Polymer.Gestures.deepTargetFind(touch.clientX, touch.clientY);
+          }
+        });
+      }
+    });
+  })();
+</script>

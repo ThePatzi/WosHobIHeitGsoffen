@@ -80,6 +80,15 @@
         },
       },
       
+      listeners: {
+        'remove-item': '__handleRemoveItem'
+      },
+      
+      __handleRemoveItem: function (e) {
+        this._removeItem(e.detail.item);
+        this._fireShowToast(e.detail.item.name + ' removed')
+      },
+      
       __calculateSum: function () {
         var sum = 0;
         
@@ -92,11 +101,6 @@
         }
         
         return sum.toFixed(2);
-      },
-      
-      _handleSwipe: function (e) {
-        this._removeItem(e.model.item);
-        this._fireShowToast(e.model.item.name + ' removed')
       },
       
       __handleAddItem: function (e) {
