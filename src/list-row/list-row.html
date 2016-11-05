@@ -56,9 +56,12 @@
     </style>
     
     <swipe-overlay responsiveWidth="1000px" auto-hide-time="3000">
-      <div secondary-content class="horizontal layout center">
+      <div left-content class="horizontal layout center">
         <paper-icon-button icon="clear"
-                           on-tap="_removeItem"></paper-icon-button>
+                           on-tap="__removeItemTap"></paper-icon-button>
+        
+        <paper-icon-button icon="create"
+                           on-tap="__editItemTap"></paper-icon-button>
       </div>
       <div class="horizontal layout container" style="align-items: stretch;" main-content>
         <div class="item-name cell flex horizontal layout center">
@@ -111,9 +114,14 @@
         this.set('item.amount', this.item.amount + 1);
       },
       
-      _removeItem: function () {
+      __removeItemTap: function (e) {
         var item = this.item;
         this.fire('remove-item', {item: item});
+      },
+      
+      __editItemTap: function (e) {
+        var item = this.item;
+        this.fire('edit-item', {item: item});
       }
     });
   </script>

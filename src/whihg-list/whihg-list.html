@@ -1,5 +1,7 @@
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
 
 <link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
@@ -46,22 +48,37 @@
     </style>
     
     <div class="vertical layout fit">
-      <div class="horizontal layout header">
+      <div class="horizontal layout header center">
         <span class="flex"></span>
         <span class="euro sign">&euro;</span>
         <span class="amount sign">#</span>
-        <span class="sign-spacer"></span>
+        <span class="sign-spacer horizontal layout">
+          <span class="flex"></span>
+          <paper-icon-button icon="done-all" on-tap="__onAllDoneTap"
+                             style="margin-right: 10px"></paper-icon-button>
+        </span>
       </div>
       <div class="flex" style="overflow: auto">
         <template is="dom-repeat" items="{{items}}" as="item">
-          <list-row class="row" item="{{item}}"></list-row>
+          <list-row class="row" item="{{item}}"
+          on-remove-item="__handleRemoveItem"
+          on-edit-item="__handleEditItem"></list-row>
         </template>
       </div>
       <list-input on-add-item="__handleAddItem"></list-input>
-      <div style="margin-top: 10px; font-weight: bold;">
+      <div style="margin: 10px 0 15px; font-weight: bold;">
         Gesamt: [[_sum]]
       </div>
     </div>
+    
+    <paper-dialog id="clearListDialog" always-on-top>
+      <div>Do you really want to delete all items?</div>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Cancel</paper-button>
+        <paper-button dialog-confirm on-tap="__clearAllItemsAccept">Accept</paper-button>
+      </div>
+    </paper-dialog>
+  
   </template>
   <script>
     Polymer({
@@ -80,15 +97,6 @@
         },
       },
       
-      listeners: {
-        'remove-item': '__handleRemoveItem'
-      },
-      
-      __handleRemoveItem: function (e) {
-        this._removeItem(e.detail.item);
-        this._fireShowToast(e.detail.item.name + ' removed')
-      },
-      
       __calculateSum: function () {
         var sum = 0;
         
@@ -103,6 +111,41 @@
         return sum.toFixed(2);
       },
       
+      _removeItem: function (item) {
+        var index = this.items.indexOf(item);
+        this.splice('items', index, 1);
+      },
+      
+      _fireShowToast: function (message) {
+        this.fire('show-toast', {message: message});
+      },
+      
+      __onAllDoneTap: function (e) {
+        if (this.items.length <= 0) {
+          return;
+        }
+        
+        this.$.clearListDialog.open();
+      },
+      
+      __clearAllItemsAccept: function (e) {
+        this._clearAllItems();
+      },
+      
+      _clearAllItems: function () {
+        this.splice('items', 0, this.items.length);
+      },
+      
+      __handleRemoveItem: function (e) {
+        this._removeItem(e.detail.item);
+        this._fireShowToast(e.detail.item.name + ' removed')
+      },
+      
+      __handleEditItem: function (e) {
+        console.log(e);
+        e.model.set('item.amount', 0);
+      },
+      
       __handleAddItem: function (e) {
         var item = e.detail;
         
@@ -111,15 +154,6 @@
           price: item.price,
           amount: item.amount
         });
-      },
-      
-      _removeItem: function (item) {
-        var index = this.items.indexOf(item);
-        this.splice('items', index, 1);
-      },
-      
-      _fireShowToast: function (message) {
-        this.fire('show-toast', {message: message});
       }
     });
   </script>

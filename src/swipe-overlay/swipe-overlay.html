@@ -22,9 +22,14 @@
         position: relative;
       }
       
-      :host([narrow]) * #second {
+      :host([narrow]) * #left {
         position: absolute;
         transform: translateX(-100%);
+      }
+      
+      :host([narrow]) * #right {
+        position: absolute;
+        transform: translateX(100%);
       }
       
       #main {
@@ -38,11 +43,14 @@
     
     <div id="container">
       <div class="container horizontal layout">
-        <div id="second" class="second-content outside">
-          <content select="[secondary-content]"></content>
+        <div id="left" class="left-content">
+          <content select="[left-content]"></content>
         </div>
         <div id="main" class="main flex">
           <content select="[main-content]"></content>
+        </div>
+        <div id="right" class="right-content">
+          <content select="[right-content]"></content>
         </div>
       </div>
     </div>
@@ -107,12 +115,12 @@
               'show': [{
                 name: 'swipe-in-animation',
                 node: this.$.container,
-                swipeElement: this.$.second
+                swipeElement: this.$.left
               }],
               'hide': [{
                 name: 'swipe-out-animation',
                 node: this.$.container,
-                swipeElement: this.$.second
+                swipeElement: this.$.left
               }]
             };
           }
@@ -189,7 +197,7 @@
       
       _applyHideStyle: function () {
         if (this.narrow && this.showSecond) {
-          var rect = this.$.second.getBoundingClientRect();
+          var rect = this.$.left.getBoundingClientRect();
           this.$.container.style.transform = "translateX(" + rect.width + "px)";
         } else {
           this.$.container.style.transform = "";
