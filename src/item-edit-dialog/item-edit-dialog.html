@@ -1,4 +1,5 @@
 <link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/paper-dialog-behavior/paper-dialog-behavior.html">
 
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
@@ -6,21 +7,41 @@
 <dom-module id="item-edit-dialog">
   <template>
     <style is="custom-style" include="iron-flex iron-flex-alignment"></style>
-    
+
     <style>
       :host {
         display: block;
       }
+
+      .input {
+        width: 60px;
+        text-align: center;
+        margin-left: 6px;
+      }
+
+      .button {
+        float: right;
+      }
+
     </style>
-    
-    <paper-dialog id="dialog" on-iron-overlay-closed="__handleDialogClosed">
+
+    <paper-dialog id="dialog" on-iron-overlay-closed="__handleDialogClosed"
+                  always-on-top auto-fit-on-attach>
       <h2>Edit item</h2>
-      <div class="vertical layout">
-        <paper-input label="Name" value="{{item.name}}"></paper-input>
-        <paper-input label="Amount" value="{{item.amount}}"
+      <div class="horizontal layout content">
+        <paper-input label="Name"
+                     value="{{item.name}}"
+                     class="flex"></paper-input>
+
+        <paper-input class="input"
+                     label="Amount"
+                     value="{{item.amount}}"
                      type="number"
                      min="0"></paper-input>
-        <paper-input label="Price" value="{{item.price}}"
+
+        <paper-input class="input"
+                     label="Price"
+                     value="{{item.price}}"
                      type="number"
                      min="0"></paper-input>
       </div>
@@ -29,7 +50,7 @@
         <paper-button dialog-confirm on-tap="_saveItem">Accept</paper-button>
       </div>
     </paper-dialog>
-  
+
   </template>
   <script>
     Polymer({

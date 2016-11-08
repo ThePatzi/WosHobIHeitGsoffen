@@ -1,0 +1,17 @@
+{
+    "entrypoint": "index.html",
+    "sources": [
+        "src/**/*",
+        "images/**/*",
+        "bower.json",
+        "manifest.json",
+        "sw-import.js",
+        "index.html"
+    ],
+    "includeDependencies": [
+        "bower_components/platinum-sw/bootstrap/*",
+        "bower_components/platinum-sw/service-worker.js",
+        "bower_components/sw-toolbox/sw-toolbox.js",
+        "bower_components/webcomponentjs/webcomponents-lite.min.js"
+    ]
+}
