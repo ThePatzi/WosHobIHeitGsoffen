@@ -55,7 +55,7 @@
       }
     </style>
     
-    <swipe-overlay responsiveWidth="1000px" auto-hide-time="3000">
+    <swipe-overlay responsiveWidth="1000px" auto-hide-time="3000" animation-duration="400">
       <div left-content class="horizontal layout center">
         <paper-icon-button icon="clear"
                            on-tap="__removeItemTap"></paper-icon-button>
@@ -107,11 +107,11 @@
       },
       
       _decreaseAmount: function () {
-        this.set('item.amount', this.item.amount - 1);
+        this.set('item.amount', parseFloat(this.item.amount) - 1);
       },
       
       _increaseAmount: function () {
-        this.set('item.amount', this.item.amount + 1);
+        this.set('item.amount', parseFloat(this.item.amount) + 1);
       },
       
       __removeItemTap: function (e) {

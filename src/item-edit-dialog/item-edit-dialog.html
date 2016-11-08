@@ -1,0 +1,69 @@
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../bower_components/paper-dialog-behavior/paper-dialog-behavior.html">
+
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+
+<dom-module id="item-edit-dialog">
+  <template>
+    <style is="custom-style" include="iron-flex iron-flex-alignment"></style>
+    
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    
+    <paper-dialog id="dialog" on-iron-overlay-closed="__handleDialogClosed">
+      <h2>Edit item</h2>
+      <div class="vertical layout">
+        <paper-input label="Name" value="{{item.name}}"></paper-input>
+        <paper-input label="Amount" value="{{item.amount}}"
+                     type="number"
+                     min="0"></paper-input>
+        <paper-input label="Price" value="{{item.price}}"
+                     type="number"
+                     min="0"></paper-input>
+      </div>
+      <div class="button">
+        <paper-button dialog-dismiss>Cancel</paper-button>
+        <paper-button dialog-confirm on-tap="_saveItem">Accept</paper-button>
+      </div>
+    </paper-dialog>
+  
+  </template>
+  <script>
+    Polymer({
+      is: 'item-edit-dialog',
+      
+      properties: {
+        item: {
+          type: Object,
+          notify: true,
+          value: {}
+        }
+      },
+      
+      show: function (index, item) {
+        this.index = index;
+        this.item = {
+          name: item.name,
+          amount: parseInt(item.amount),
+          price: parseFloat(item.price)
+        };
+        this.$.dialog.open();
+      },
+      
+      close: function () {
+        this.$.dialog.open();
+      },
+      
+      _saveItem: function () {
+        this.fire('item-save', {index: this.index, item: this.item});
+      },
+      
+      __handleDialogClosed: function () {
+        this.fire('dialog-closed');
+      }
+    });
+  </script>
+</dom-module>

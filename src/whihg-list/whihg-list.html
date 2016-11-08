@@ -9,7 +9,8 @@
 <link rel="import" href="../../bower_components/iron-scroll-target-behavior/iron-scroll-target-behavior.html">
 
 <link rel="import" href="../list-row/list-row.html">
-<link rel="import" href="./list-input.html">
+<link rel="import" href="../item-edit-dialog/item-edit-dialog.html">
+<link rel="import" href="list-input.html">
 
 <dom-module id="whihg-list">
   <template>
@@ -39,11 +40,26 @@
       .row {
         --row-style: {
           border-bottom: 1px solid lightgray;
-        };
+        }
       }
       
       .header {
         border-bottom: 1px solid black;
+      }
+      
+      #editDialog {
+        --paper-dialog:{
+          width: 500px;
+        };
+      }
+      
+      @media (max-width: 500px) {
+        #editDialog {
+          --paper-dialog:{
+            left: 0;
+            right: 0;
+          };
+        }
       }
     </style>
     
@@ -61,8 +77,8 @@
       <div class="flex" style="overflow: auto">
         <template is="dom-repeat" items="{{items}}" as="item">
           <list-row class="row" item="{{item}}"
-          on-remove-item="__handleRemoveItem"
-          on-edit-item="__handleEditItem"></list-row>
+                    on-remove-item="__handleRemoveItem"
+                    on-edit-item="__handleEditItem"></list-row>
         </template>
       </div>
       <list-input on-add-item="__handleAddItem"></list-input>
@@ -78,6 +94,9 @@
         <paper-button dialog-confirm on-tap="__clearAllItemsAccept">Accept</paper-button>
       </div>
     </paper-dialog>
+    
+    <item-edit-dialog id="editDialog" item="{{_editItem}}"
+                      on-item-save="__onItemSave"></item-edit-dialog>
   
   </template>
   <script>
@@ -95,6 +114,13 @@
           type: Number,
           computed: '__calculateSum(items.*)'
         },
+        
+        _editItem: {
+          type: Object,
+          notify: true,
+          value: {}
+        }
+        
       },
       
       __calculateSum: function () {
@@ -142,8 +168,8 @@
       },
       
       __handleEditItem: function (e) {
-        console.log(e);
-        e.model.set('item.amount', 0);
+        var index = this.items.indexOf(e.model.item);
+        this.$.editDialog.show(index, e.model.item);
       },
       
       __handleAddItem: function (e) {
@@ -154,6 +180,11 @@
           price: item.price,
           amount: item.amount
         });
+      },
+      
+      __onItemSave: function (e) {
+        var detail = e.detail;
+        this.set('items.' + detail.index, detail.item);
       }
     });
   </script>
