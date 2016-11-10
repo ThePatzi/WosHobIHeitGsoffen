@@ -88,7 +88,7 @@
             </div>
             <div class="content flex">
               <whihg-list items="{{value.items}}"
-                          favorites="{{value.favorites}}"
+                          favorites="{{favorites.items}}"
                           on-show-toast="__handleShowToast"></whihg-list>
             </div>
           </div>
@@ -122,8 +122,15 @@
           type: Object,
           notify: true,
           value: {
-            items: [],
-            favorites: []
+            items: []
+          }
+        },
+
+        favorites:{
+          type: Object,
+          notify: true,
+          value: {
+            items:[]
           }
         }
         

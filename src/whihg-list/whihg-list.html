@@ -64,6 +64,10 @@
     </style>
     
     <div class="vertical layout fit">
+      <div>
+        asdf
+        <span>{{favorites}}</span>
+      </div>
       <div class="horizontal layout header center">
         <span class="flex"></span>
         <span class="euro sign">&euro;</span>
@@ -183,7 +187,7 @@
       
       __handleAddItem: function (e) {
         var item = e.detail;
-        
+
         this.push('items', {
           name: item.name,
           price: item.price,
@@ -202,7 +206,7 @@
         var price = parseFloat(item.price || 0);
         var isFavorite = false;
         var index = -1;
-        
+
         for (var i = 0; i < this.favorites.length; i++) {
           var favorite = this.favorites[i];
           
@@ -212,7 +216,7 @@
             break;
           }
         }
-        
+
         if (isFavorite) {
           this.splice('favorites', index, 1);
         } else {
@@ -221,9 +225,13 @@
             price: parseFloat(item.price)
           });
         }
+
+        console.log(this.favorites);
       },
       
       __computeIsFavorite(name, price, favorites){
+        console.log(name, price, favorites);
+        
         price = parseFloat(price || 0);
         
         for (var i = 0; i < favorites.length; i++) {

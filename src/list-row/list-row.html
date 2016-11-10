@@ -58,6 +58,11 @@
         --iron-icon-fill-color: red;
         --iron-icon-stroke-color: red;
       }
+
+      .row-content{
+        padding-left: 10px;
+        border-left: 1px solid gray;
+      }
     </style>
     
     <div class="container">
@@ -73,7 +78,7 @@
                              on-tap="__addFavoriteTap"
                              class="favorite-button"></paper-icon-button>
         </div>
-        <div class="horizontal layout" style="align-items: stretch;" main-content>
+        <div class="horizontal layout row-content" style="align-items: stretch;" main-content>
           <div class="item-name cell flex horizontal layout center">
             <div>[[item.name]]</div>
           </div>
@@ -144,6 +149,7 @@
       },
       
       __computeIcon: function (isFavorite) {
+        console.log(isFavorite);
         return isFavorite ? 'favorite' : 'favorite-border';
       }
     });
