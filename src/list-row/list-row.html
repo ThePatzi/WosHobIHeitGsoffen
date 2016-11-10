@@ -53,32 +53,43 @@
       .cell {
         pointer-events: none;
       }
+      
+      .favorite-button {
+        --iron-icon-fill-color: red;
+        --iron-icon-stroke-color: red;
+      }
     </style>
     
-    <swipe-overlay responsiveWidth="1000px" auto-hide-time="3000" animation-duration="400">
-      <div left-content class="horizontal layout center">
-        <paper-icon-button icon="clear"
-                           on-tap="__removeItemTap"></paper-icon-button>
-        
-        <paper-icon-button icon="create"
-                           on-tap="__editItemTap"></paper-icon-button>
-      </div>
-      <div class="horizontal layout container" style="align-items: stretch;" main-content>
-        <div class="item-name cell flex horizontal layout center">
-          <div>[[item.name]]</div>
+    <div class="container">
+      <swipe-overlay responsiveWidth="1000px" auto-hide-time="3000" animation-duration="400">
+        <div left-content class="horizontal layout center">
+          <paper-icon-button icon="clear"
+                             on-tap="__removeItemTap"></paper-icon-button>
+          
+          <paper-icon-button icon="create"
+                             on-tap="__editItemTap"></paper-icon-button>
+          
+          <paper-icon-button icon="[[__computeIcon(isFavorite)]]"
+                             on-tap="__addFavoriteTap"
+                             class="favorite-button"></paper-icon-button>
         </div>
-        <div class="item-price cell horizontal layout center">
-          <div style="text-align: right;" class="flex">[[_formatPrice(item.price)]]</div>
+        <div class="horizontal layout" style="align-items: stretch;" main-content>
+          <div class="item-name cell flex horizontal layout center">
+            <div>[[item.name]]</div>
+          </div>
+          <div class="item-price cell horizontal layout center">
+            <div style="text-align: right;" class="flex">[[_formatPrice(item.price)]]</div>
+          </div>
+          <div class="item-amount cell horizontal layout center">
+            <div style="text-align: center;" class="flex">[[item.amount]]</div>
+          </div>
+          <paper-icon-button icon="remove"
+                             on-tap="_decreaseAmount" disabled="[[_decreaseDisabled]]"></paper-icon-button>
+          <paper-icon-button icon="add"
+                             on-tap="_increaseAmount"></paper-icon-button>
         </div>
-        <div class="item-amount cell horizontal layout center">
-          <div style="text-align: center;" class="flex">[[item.amount]]</div>
-        </div>
-        <paper-icon-button icon="remove"
-                           on-tap="_decreaseAmount" disabled="[[_decreaseDisabled]]"></paper-icon-button>
-        <paper-icon-button icon="add"
-                           on-tap="_increaseAmount"></paper-icon-button>
-      </div>
-    </swipe-overlay>
+      </swipe-overlay>
+    </div>
   </template>
   <script>
     Polymer({
@@ -93,6 +104,12 @@
         _decreaseDisabled: {
           type: Boolean,
           computed: '__decreaseDisabled(item.amount)'
+        },
+        
+        isFavorite: {
+          type: Boolean,
+          notify: true,
+          value: false
         }
       },
       
@@ -115,13 +132,19 @@
       },
       
       __removeItemTap: function (e) {
-        var item = this.item;
-        this.fire('remove-item', {item: item});
+        this.fire('remove-item', {item: this.item});
       },
       
       __editItemTap: function (e) {
-        var item = this.item;
-        this.fire('edit-item', {item: item});
+        this.fire('edit-item', {item: this.item});
+      },
+      
+      __addFavoriteTap: function (e) {
+        this.fire('add-favorite-item', {item: this.item});
+      },
+      
+      __computeIcon: function (isFavorite) {
+        return isFavorite ? 'favorite' : 'favorite-border';
       }
     });
   </script>

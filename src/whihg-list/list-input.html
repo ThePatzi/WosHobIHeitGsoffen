@@ -1,5 +1,10 @@
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+
 <link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+
+<link rel="import" href="../favorite-list/favorite-list.html">
 
 <dom-module id="list-input">
   <template>
@@ -8,23 +13,38 @@
       :host {
         display: block;
       }
-
+      
       .price-input {
         width: 60px;
       }
-
+      
       .actions {
         border-top: 1px solid black;
       }
-
+      
       .actions * {
         margin: 0 2px;
       }
-
+      
       .actions paper-icon-button {
         width: 40px;
         min-width: 40px;
         max-width: 40px;
+      }
+      
+      #favorite-dialog {
+        --paper-dialog: {
+          max-width: 600px;
+          width: 600px;
+        };
+      }
+      
+      @media (max-width: 700px) {
+        #favorite-dialog {
+          --paper-dialog: {
+            width: 100%;
+          };
+        }
       }
     </style>
     
@@ -38,15 +58,31 @@
                    class="price-input"
                    type="number"
                    min="0"></paper-input>
-      <paper-icon-button icon="favorite-border"></paper-icon-button>
+      <paper-icon-button icon="favorite" on-tap="_chooseFavorite"></paper-icon-button>
       <paper-icon-button icon="add" on-tap="_addItem"></paper-icon-button>
     </div>
+    
+    <paper-dialog id="favorite-dialog">
+      <div class="content">
+        <favorite-list favorites="{{favorites}}"></favorite-list>
+      </div>
+      <div style="float:right">
+        <paper-button dialog-dismiss>Cancel</paper-button>
+        <paper-button dialog-confirm>Ok</paper-button>
+      </div>
+    </paper-dialog>
   </template>
   <script>
     Polymer({
       is: 'list-input',
       
-      properties: {},
+      properties: {
+        favorites: {
+          type: Array,
+          notify: true,
+          value: []
+        }
+      },
       
       _addItem: function () {
         var name = this.$.name.value;
@@ -54,6 +90,10 @@
         
         this.fire('add-item', {name: name, price: price, amount: 1});
       },
+      
+      _chooseFavorite: function (e) {
+        this.$['favorite-dialog'].open();
+      }
     });
   </script>
 </dom-module>

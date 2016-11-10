@@ -1,0 +1,57 @@
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+
+<link rel="import" href="../swipe-overlay/swipe-overlay.html">
+
+<dom-module id="favorite-list">
+  <template>
+    <style is="custom-style" include="iron-flex iron-flex-alignment"></style>
+    
+    <style>
+      :host {
+        display: block;
+        --container-style: {
+          @apply(--layout-center);
+        }
+      }
+      
+      .row {
+        padding: 5px 3px;
+      }
+    </style>
+    
+    <div>
+      <template is="dom-repeat" items="{{favorites}}" as="item">
+        <div class="row">
+          <swipe-overlay responsive-width="1000px" auto-hide-time="2000">
+            <div class="horizontal layout center" left-content>
+              <paper-icon-button icon="clear"></paper-icon-button>
+            </div>
+            <div class="horizontal layout" style="align-items: stretch" main-content>
+              <span class="flex">[[item.name]]</span>
+              <span>[[_formatPrice(item.price)]]&euro;</span>
+            </div>
+          </swipe-overlay>
+        </div>
+      </template>
+    </div>
+  </template>
+  <script>
+    Polymer({
+      is: 'favorite-list',
+      properties: {
+        favorites: {
+          type: Array,
+          notify: true,
+          value: []
+        }
+      },
+      
+      _formatPrice: function (price) {
+        price = parseFloat(price) || 0;
+        
+        return (price).toFixed(2);
+      }
+    });
+  </script>
+</dom-module>
