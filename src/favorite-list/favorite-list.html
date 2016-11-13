@@ -1,5 +1,6 @@
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/iron-list/iron-list.html">
 
 <link rel="import" href="../swipe-overlay/swipe-overlay.html">
 
@@ -18,22 +19,28 @@
       .row {
         padding: 5px 3px;
       }
+      
+      .row.selected {
+        background-color: lightgray;
+      }
     </style>
     
     <div>
-      <template is="dom-repeat" items="{{favorites}}" as="item">
-        <div class="row">
-          <swipe-overlay responsive-width="1000px" auto-hide-time="2000">
-            <div class="horizontal layout center" left-content>
-              <paper-icon-button icon="clear"></paper-icon-button>
-            </div>
-            <div class="horizontal layout" style="align-items: stretch" main-content>
-              <span class="flex">[[item.name]]</span>
-              <span>[[_formatPrice(item.price)]]&euro;</span>
-            </div>
-          </swipe-overlay>
-        </div>
-      </template>
+      <iron-list id="itemList" items="[[favorites]]" as="item" selected-item="{{selectedItem}}" selection-enabled>
+        <template>
+          <div class$="[[_computedClass(selected)]]">
+            <swipe-overlay responsive-width="1000px" auto-hide-time="2000">
+              <div class="horizontal layout center" left-content>
+                <paper-icon-button icon="clear" on-tap="__removeButtonTap"></paper-icon-button>
+              </div>
+              <div class="horizontal layout" style="align-items: stretch" main-content>
+                <span class="flex">[[item.name]]</span>
+                <span>[[_formatPrice(item.price)]]&euro;</span>
+              </div>
+            </swipe-overlay>
+          </div>
+        </template>
+      </iron-list>
     </div>
   </template>
   <script>
@@ -44,6 +51,12 @@
           type: Array,
           notify: true,
           value: []
+        },
+        
+        selectedItem: {
+          type: Object,
+          notify: true,
+          value: {}
         }
       },
       
@@ -51,6 +64,20 @@
         price = parseFloat(price) || 0;
         
         return (price).toFixed(2);
+      },
+      
+      _computedClass: function (selected) {
+        var classes = ['row'];
+        
+        if (selected) {
+          classes.push('selected');
+        }
+        
+        return classes.join(' ');
+      },
+      
+      __removeButtonTap: function (e) {
+        this.fire('remove-favorite', {item: e.model.item});
       }
     });
   </script>

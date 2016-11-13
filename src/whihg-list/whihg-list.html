@@ -64,10 +64,6 @@
     </style>
     
     <div class="vertical layout fit">
-      <div>
-        asdf
-        <span>{{favorites}}</span>
-      </div>
       <div class="horizontal layout header center">
         <span class="flex"></span>
         <span class="euro sign">&euro;</span>
@@ -88,6 +84,7 @@
         </template>
       </div>
       <list-input on-add-item="__handleAddItem"
+                  on-remove-favorite="__handleRemoveFavorite"
                   favorites="[[favorites]]"></list-input>
       <div style="margin: 10px 0 15px; font-weight: bold;">
         Gesamt: [[_sum]]
@@ -187,7 +184,7 @@
       
       __handleAddItem: function (e) {
         var item = e.detail;
-
+        
         this.push('items', {
           name: item.name,
           price: item.price,
@@ -204,20 +201,9 @@
         var item = e.detail.item;
         
         var price = parseFloat(item.price || 0);
-        var isFavorite = false;
-        var index = -1;
-
-        for (var i = 0; i < this.favorites.length; i++) {
-          var favorite = this.favorites[i];
-          
-          if (item.name === favorite.name && price === parseFloat(favorite.price || 0)) {
-            isFavorite = true;
-            index = i;
-            break;
-          }
-        }
-
-        if (isFavorite) {
+        var index = this._getIndexOfFavorite(this.favorites, item);
+        
+        if (index >= 0) {
           this.splice('favorites', index, 1);
         } else {
           this.push('favorites', {
@@ -225,13 +211,9 @@
             price: parseFloat(item.price)
           });
         }
-
-        console.log(this.favorites);
       },
       
-      __computeIsFavorite(name, price, favorites){
-        console.log(name, price, favorites);
-        
+      __computeIsFavorite: function (name, price, favorites) {
         price = parseFloat(price || 0);
         
         for (var i = 0; i < favorites.length; i++) {
@@ -243,8 +225,24 @@
         }
         
         return false;
+      },
+      
+      _getIndexOfFavorite: function (favorites, item) {
+        for (var i = 0; i < favorites.length; i++) {
+          var favorite = favorites[i];
+          
+          if (item.name === favorite.name && item.price === parseFloat(favorite.price || 0)) {
+            return i;
+          }
+        }
+        
+        return -1;
+      },
+      
+      __handleRemoveFavorite: function (e) {
+        var index = this._getIndexOfFavorite(this.favorites, e.detail.item);
+        this.splice('favorites', index, 1);
       }
-    })
-    ;
+    });
   </script>
 </dom-module>

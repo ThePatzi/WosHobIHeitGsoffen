@@ -106,7 +106,7 @@
     
     <app-pouchdb-document
         db-name="woshobigsoffn"
-        doc-id="__favorites__"
+        doc-id="favorites__"
         data="{{favorites}}">
     </app-pouchdb-document>
   
@@ -125,12 +125,12 @@
             items: []
           }
         },
-
-        favorites:{
+        
+        favorites: {
           type: Object,
           notify: true,
           value: {
-            items:[]
+            items: []
           }
         }
         

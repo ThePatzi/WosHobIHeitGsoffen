@@ -64,11 +64,14 @@
     
     <paper-dialog id="favorite-dialog">
       <div class="content">
-        <favorite-list favorites="{{favorites}}"></favorite-list>
+        <favorite-list favorites="{{favorites}}" selected-item="{{selectedFavorite}}"></favorite-list>
       </div>
       <div style="float:right">
         <paper-button dialog-dismiss>Cancel</paper-button>
-        <paper-button dialog-confirm>Ok</paper-button>
+        <paper-button dialog-confirm
+                      disabled="[[_okButtonDisabled(selectedFavorite)]]"
+                      on-tap="_favoriteDialogOk">Ok
+        </paper-button>
       </div>
     </paper-dialog>
   </template>
@@ -93,7 +96,23 @@
       
       _chooseFavorite: function (e) {
         this.$['favorite-dialog'].open();
-      }
+      },
+      
+      _okButtonDisabled: function (selectedFavorite) {
+        return selectedFavorite ? false : true;
+      },
+      
+      _favoriteDialogOk: function () {
+        var selected = this.selectedFavorite;
+        this.$.name.value = selected.name;
+        this.$.price.value = this._formatPrice(selected.price);
+      },
+      
+      _formatPrice: function (price) {
+        price = parseFloat(price) || 0;
+        
+        return (price).toFixed(2);
+      },
     });
   </script>
 </dom-module>
