@@ -77,6 +77,7 @@
       },
       
       __removeButtonTap: function (e) {
+        e.stopPropagation();
         this.fire('remove-favorite', {item: e.model.item});
       }
     });
